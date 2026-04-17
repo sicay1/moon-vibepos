@@ -1,0 +1,184 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "MoonPOS",
+  "@appTitle": { "description": "Application title" },
+
+  "navDashboard": "Dashboard",
+  "navOrders": "Orders",
+  "navCatalog": "Manage",
+  "navContacts": "Contacts",
+  "navSettings": "Settings",
+
+  "tabCategories": "Categories",
+  "tabProducts": "Products",
+  "tabToppings": "Toppings",
+  "tabCustomers": "Customers",
+  "tabSuppliers": "Suppliers",
+
+  "add": "Add",
+  "edit": "Edit",
+  "delete": "Delete",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "search": "Search",
+  "name": "Name",
+  "price": "Price",
+  "description": "Description",
+  "notes": "Notes",
+  "address": "Address",
+  "phone": "Phone",
+  "avatar": "Avatar",
+  "images": "Images",
+  "ingredients": "Ingredients",
+  "category": "Category",
+  "none": "None",
+
+  "deleteConfirmTitle": "Delete?",
+  "deleteConfirmMessage": "This action cannot be undone.",
+  "emptyList": "Nothing here yet. Tap + to add.",
+
+  "categoryListTitle": "Categories",
+  "productListTitle": "Products",
+  "toppingListTitle": "Toppings",
+  "customerListTitle": "Customers",
+  "supplierListTitle": "Suppliers",
+  "orderListTitle": "Orders",
+
+  "categoryFormAdd": "Add Category",
+  "categoryFormEdit": "Edit Category",
+  "productFormAdd": "Add Product",
+  "productFormEdit": "Edit Product",
+  "toppingFormAdd": "Add Topping",
+  "toppingFormEdit": "Edit Topping",
+  "customerFormAdd": "Add Customer",
+  "customerFormEdit": "Edit Customer",
+  "supplierFormAdd": "Add Supplier",
+  "supplierFormEdit": "Edit Supplier",
+
+  "parentProduct": "Parent Product",
+  "facebook": "Facebook",
+  "zalo": "Zalo",
+  "googleMap": "Google Map URL",
+  "priceNote": "Price note",
+
+  "orderStatusPending": "Pending",
+  "orderStatusCompleted": "Completed",
+  "orderStatusCancelled": "Cancelled",
+  "newOrder": "New Order",
+  "orderCustomerOptional": "Customer (optional)",
+  "orderNoCustomer": "No customer",
+  "orderTotal": "Total",
+  "orderDiscount": "Discount",
+  "orderNote": "Order note",
+  "orderFinalize": "Finalize Order",
+  "addToCart": "Add to cart",
+  "quantity": "Quantity",
+  "toppings": "Toppings",
+  "subtotal": "Subtotal",
+
+  "dashboardTitle": "Dashboard",
+  "todaySales": "Today",
+  "weekSales": "This Week",
+  "monthSales": "This Month",
+  "topCustomers": "Top Customers",
+  "topCustomersThisMonth": "Top Customers (This Month)",
+  "last7DaysRevenue": "Last 7 Days Revenue",
+  "bestSelling": "Best Selling",
+  "totalOrders": "Orders",
+  "revenue": "Revenue",
+
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language",
+  "settingsLangEn": "English",
+  "settingsLangVi": "Tiếng Việt",
+
+  "settingsDatabase": "Database",
+
+  "settingsBackup": "Backup & Restore",
+  "backupCreate": "Create Backup",
+  "backupCreateSubtitle": "Export all data and images as a .moonbak.zip file",
+  "backupRestore": "Restore from Backup",
+  "backupRestoreSubtitle": "Import data from a .moonbak.zip file",
+  "backupRestoreWarning": "This will permanently overwrite ALL current data (orders, customers, catalog, options). This cannot be undone. Continue?",
+  "backupInProgress": "Creating backup…",
+  "backupSuccess": "Backup created successfully",
+  "backupSaveToDevice": "Save to device",
+  "backupShare": "Share to app",
+  "backupFailed": "Backup failed",
+  "restoreInProgress": "Restoring…",
+  "restoreSuccess": "Restore completed successfully",
+  "restoreFailed": "Restore failed",
+
+  "cleanupClearOrders": "Clear Orders",
+  "cleanupClearOrdersSubtitle": "Remove order history and order items",
+  "cleanupClearOrdersAll": "Clear all orders",
+  "cleanupClearOrdersAllSubtitle": "Removes every order regardless of date",
+  "cleanupClearOrdersOlderThan": "Orders older than…",
+  "cleanupClearOrdersOlderThanSubtitle": "Tap to pick a date",
+  "cleanupClearOrdersOlderThanSelected": "Before {day}/{month}/{year}",
+  "@cleanupClearOrdersOlderThanSelected": {
+    "placeholders": {
+      "day": { "type": "String" },
+      "month": { "type": "String" },
+      "year": { "type": "String" }
+    }
+  },
+  "cleanupClearOrdersOlderThanButton": "Clear Orders Older Than Selected Date",
+  "cleanupClearOrdersAllDesc": "Every order and order item will be permanently deleted.",
+  "cleanupClearOrdersOlderThanDesc": "Orders created before {date} will be permanently deleted.",
+  "@cleanupClearOrdersOlderThanDesc": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+
+  "cleanupClearCustomers": "Clear Customers",
+  "cleanupClearCustomersSubtitle": "Remove all customer records",
+  "cleanupClearCustomersDesc": "All customer records will be permanently deleted. Orders will remain but without customer info.",
+
+  "cleanupClearSuppliers": "Clear Suppliers",
+  "cleanupClearSuppliersSubtitle": "Remove all supplier records",
+  "cleanupClearSuppliersDesc": "All supplier records will be permanently deleted.",
+
+  "cleanupClearCatalog": "Clear Catalog",
+  "cleanupClearCatalogSubtitle": "Remove all categories, products, and toppings",
+  "cleanupClearCatalogDesc": "All categories, products, and toppings will be permanently deleted.",
+
+  "cleanupResetOptions": "Reset Options",
+  "cleanupResetOptionsSubtitle": "Reset Size / Ice / Sweet to defaults",
+  "cleanupResetOptionsDesc": "All custom size, ice, and sweet level options will be deleted and replaced with the default seeded values.",
+
+  "cleanupFactoryReset": "Factory Reset",
+  "cleanupFactoryResetSubtitle": "Wipe everything and start fresh",
+  "cleanupFactoryResetDesc": "ALL data will be permanently deleted: orders, customers, suppliers, catalog, and options. Options will be re-seeded with defaults.",
+
+  "cleanupConfirmTypeHint": "Type DELETE to confirm:",
+  "cleanupConfirmButton": "Confirm Delete",
+  "cleanupSuccessMessage": "{action} completed",
+  "@cleanupSuccessMessage": {
+    "placeholders": {
+      "action": { "type": "String" }
+    }
+  },
+
+  "validationRequired": "{field} is required",
+  "@validationRequired": {
+    "placeholders": {
+      "field": { "type": "String" }
+    }
+  },
+  "validationPositiveNumber": "{field} must be a positive number",
+  "@validationPositiveNumber": {
+    "placeholders": {
+      "field": { "type": "String" }
+    }
+  },
+
+  "aboutTitle": "About",
+  "aboutAuthor": "Author",
+  "aboutAuthorName": "VibeCode by Ton Truong",
+  "aboutVersion": "Version",
+  "aboutOpenSourceLicenses": "Open Source Licenses"
+}
