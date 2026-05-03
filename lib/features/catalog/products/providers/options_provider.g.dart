@@ -59,8 +59,8 @@ final sweetLevelsStreamProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SweetLevelsStreamRef = AutoDisposeStreamProviderRef<List<SweetLevel>>;
-String _$productSizesStreamHash() =>
-    r'b33e3aa3993822e01cf45a100c55d29cf8191d4d';
+String _$productSizeOptionsStreamHash() =>
+    r'97380385984c2296e0c820180c92d2196fee126c';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -83,23 +83,32 @@ class _SystemHash {
   }
 }
 
-/// See also [productSizesStream].
-@ProviderFor(productSizesStream)
-const productSizesStreamProvider = ProductSizesStreamFamily();
+/// Per-product sizes with **per-product** prices (from productSizes.price).
+///
+/// Copied from [productSizeOptionsStream].
+@ProviderFor(productSizeOptionsStream)
+const productSizeOptionsStreamProvider = ProductSizeOptionsStreamFamily();
 
-/// See also [productSizesStream].
-class ProductSizesStreamFamily extends Family<AsyncValue<List<Size>>> {
-  /// See also [productSizesStream].
-  const ProductSizesStreamFamily();
+/// Per-product sizes with **per-product** prices (from productSizes.price).
+///
+/// Copied from [productSizeOptionsStream].
+class ProductSizeOptionsStreamFamily
+    extends Family<AsyncValue<List<ProductSizeOption>>> {
+  /// Per-product sizes with **per-product** prices (from productSizes.price).
+  ///
+  /// Copied from [productSizeOptionsStream].
+  const ProductSizeOptionsStreamFamily();
 
-  /// See also [productSizesStream].
-  ProductSizesStreamProvider call(int productId) {
-    return ProductSizesStreamProvider(productId);
+  /// Per-product sizes with **per-product** prices (from productSizes.price).
+  ///
+  /// Copied from [productSizeOptionsStream].
+  ProductSizeOptionsStreamProvider call(int productId) {
+    return ProductSizeOptionsStreamProvider(productId);
   }
 
   @override
-  ProductSizesStreamProvider getProviderOverride(
-    covariant ProductSizesStreamProvider provider,
+  ProductSizeOptionsStreamProvider getProviderOverride(
+    covariant ProductSizeOptionsStreamProvider provider,
   ) {
     return call(provider.productId);
   }
@@ -116,27 +125,35 @@ class ProductSizesStreamFamily extends Family<AsyncValue<List<Size>>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'productSizesStreamProvider';
+  String? get name => r'productSizeOptionsStreamProvider';
 }
 
-/// See also [productSizesStream].
-class ProductSizesStreamProvider extends AutoDisposeStreamProvider<List<Size>> {
-  /// See also [productSizesStream].
-  ProductSizesStreamProvider(int productId)
+/// Per-product sizes with **per-product** prices (from productSizes.price).
+///
+/// Copied from [productSizeOptionsStream].
+class ProductSizeOptionsStreamProvider
+    extends AutoDisposeStreamProvider<List<ProductSizeOption>> {
+  /// Per-product sizes with **per-product** prices (from productSizes.price).
+  ///
+  /// Copied from [productSizeOptionsStream].
+  ProductSizeOptionsStreamProvider(int productId)
     : this._internal(
-        (ref) => productSizesStream(ref as ProductSizesStreamRef, productId),
-        from: productSizesStreamProvider,
-        name: r'productSizesStreamProvider',
+        (ref) => productSizeOptionsStream(
+          ref as ProductSizeOptionsStreamRef,
+          productId,
+        ),
+        from: productSizeOptionsStreamProvider,
+        name: r'productSizeOptionsStreamProvider',
         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
             ? null
-            : _$productSizesStreamHash,
-        dependencies: ProductSizesStreamFamily._dependencies,
+            : _$productSizeOptionsStreamHash,
+        dependencies: ProductSizeOptionsStreamFamily._dependencies,
         allTransitiveDependencies:
-            ProductSizesStreamFamily._allTransitiveDependencies,
+            ProductSizeOptionsStreamFamily._allTransitiveDependencies,
         productId: productId,
       );
 
-  ProductSizesStreamProvider._internal(
+  ProductSizeOptionsStreamProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -150,12 +167,15 @@ class ProductSizesStreamProvider extends AutoDisposeStreamProvider<List<Size>> {
 
   @override
   Override overrideWith(
-    Stream<List<Size>> Function(ProductSizesStreamRef provider) create,
+    Stream<List<ProductSizeOption>> Function(
+      ProductSizeOptionsStreamRef provider,
+    )
+    create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: ProductSizesStreamProvider._internal(
-        (ref) => create(ref as ProductSizesStreamRef),
+      override: ProductSizeOptionsStreamProvider._internal(
+        (ref) => create(ref as ProductSizeOptionsStreamRef),
         from: from,
         name: null,
         dependencies: null,
@@ -167,13 +187,14 @@ class ProductSizesStreamProvider extends AutoDisposeStreamProvider<List<Size>> {
   }
 
   @override
-  AutoDisposeStreamProviderElement<List<Size>> createElement() {
-    return _ProductSizesStreamProviderElement(this);
+  AutoDisposeStreamProviderElement<List<ProductSizeOption>> createElement() {
+    return _ProductSizeOptionsStreamProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is ProductSizesStreamProvider && other.productId == productId;
+    return other is ProductSizeOptionsStreamProvider &&
+        other.productId == productId;
   }
 
   @override
@@ -187,18 +208,19 @@ class ProductSizesStreamProvider extends AutoDisposeStreamProvider<List<Size>> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin ProductSizesStreamRef on AutoDisposeStreamProviderRef<List<Size>> {
+mixin ProductSizeOptionsStreamRef
+    on AutoDisposeStreamProviderRef<List<ProductSizeOption>> {
   /// The parameter `productId` of this provider.
   int get productId;
 }
 
-class _ProductSizesStreamProviderElement
-    extends AutoDisposeStreamProviderElement<List<Size>>
-    with ProductSizesStreamRef {
-  _ProductSizesStreamProviderElement(super.provider);
+class _ProductSizeOptionsStreamProviderElement
+    extends AutoDisposeStreamProviderElement<List<ProductSizeOption>>
+    with ProductSizeOptionsStreamRef {
+  _ProductSizeOptionsStreamProviderElement(super.provider);
 
   @override
-  int get productId => (origin as ProductSizesStreamProvider).productId;
+  int get productId => (origin as ProductSizeOptionsStreamProvider).productId;
 }
 
 String _$productIceLevelsStreamHash() =>
@@ -455,7 +477,7 @@ class _ProductSweetLevelsStreamProviderElement
   int get productId => (origin as ProductSweetLevelsStreamProvider).productId;
 }
 
-String _$sizesNotifierHash() => r'241106c4a0ffc3cdb75fff3609c97d36a2849319';
+String _$sizesNotifierHash() => r'1fbf54919be9c3c19cd30f7070b028aa6feb1e90';
 
 /// See also [SizesNotifier].
 @ProviderFor(SizesNotifier)
@@ -471,7 +493,7 @@ final sizesNotifierProvider =
     );
 
 typedef _$SizesNotifier = AutoDisposeNotifier<void>;
-String _$iceLevelsNotifierHash() => r'5e9dda3e153821602c41b2a7409b8fe5122baa99';
+String _$iceLevelsNotifierHash() => r'f6a693d2b8f28f0d9b44763a8fadb56bd85b16d3';
 
 /// See also [IceLevelsNotifier].
 @ProviderFor(IceLevelsNotifier)
@@ -488,7 +510,7 @@ final iceLevelsNotifierProvider =
 
 typedef _$IceLevelsNotifier = AutoDisposeNotifier<void>;
 String _$sweetLevelsNotifierHash() =>
-    r'ed09c1650d502cb43d37bc6bdb01ebfa516246e8';
+    r'8a9c26b24f8e0968bd0f4de89b7f46140f7d9b66';
 
 /// See also [SweetLevelsNotifier].
 @ProviderFor(SweetLevelsNotifier)
@@ -505,7 +527,7 @@ final sweetLevelsNotifierProvider =
 
 typedef _$SweetLevelsNotifier = AutoDisposeNotifier<void>;
 String _$productOptionsNotifierHash() =>
-    r'c4ce0fa7fe50bd5b1b3bd1b05790a714b4f2c4f1';
+    r'75aa1fd274fd03e6ff002076948a7dc9270b9dc1';
 
 /// See also [ProductOptionsNotifier].
 @ProviderFor(ProductOptionsNotifier)

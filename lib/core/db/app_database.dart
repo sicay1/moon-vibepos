@@ -61,7 +61,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -92,6 +92,15 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(orderItems, orderItems.sweetLabel);
           // Seed default options
           await seedOptions();
+        }
+        if (from < 4) {
+          // Add per-product price to the product_sizes junction table
+          await m.addColumn(productSizes, productSizes.price);
+          // Pre-fill per-product prices from the global size defaults
+          await customStatement(
+            'UPDATE product_sizes SET price = '
+            '(SELECT price FROM sizes WHERE sizes.id = product_sizes.size_id)',
+          );
         }
       },
     );

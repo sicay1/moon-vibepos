@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/db/app_database.dart';
+import '../../../../core/db/daos/options_dao.dart';
 import '../../../../core/providers/database_provider.dart';
 
 part 'options_provider.g.dart';
@@ -28,10 +29,12 @@ Stream<List<SweetLevel>> sweetLevelsStream(Ref ref) {
 
 // ── Per-product streams ───────────────────────────────────────────────────────
 
+/// Per-product sizes with **per-product** prices (from productSizes.price).
 @riverpod
-Stream<List<Size>> productSizesStream(Ref ref, int productId) {
+Stream<List<ProductSizeOption>> productSizeOptionsStream(
+    Ref ref, int productId) {
   final db = ref.watch(appDatabaseProvider);
-  return db.optionsDao.watchSizesForProduct(productId);
+  return db.optionsDao.watchProductSizeOptions(productId);
 }
 
 @riverpod
@@ -66,8 +69,8 @@ class SizesNotifier extends _$SizesNotifier {
     ));
   }
 
-  Future<void> updatePrice(int id, double price) =>
-      _db.optionsDao.updateSizePrice(id, price);
+  Future<void> update(int id, String label, double price, int sortOrder) =>
+      _db.optionsDao.updateSize(id, label, price, sortOrder);
 
   Future<void> delete(int id) => _db.optionsDao.deleteSize(id);
 }
@@ -89,6 +92,9 @@ class IceLevelsNotifier extends _$IceLevelsNotifier {
     ));
   }
 
+  Future<void> update(int id, String label, int sortOrder) =>
+      _db.optionsDao.updateIceLevel(id, label, sortOrder);
+
   Future<void> delete(int id) => _db.optionsDao.deleteIceLevel(id);
 }
 
@@ -109,6 +115,9 @@ class SweetLevelsNotifier extends _$SweetLevelsNotifier {
     ));
   }
 
+  Future<void> update(int id, String label, int sortOrder) =>
+      _db.optionsDao.updateSweetLevel(id, label, sortOrder);
+
   Future<void> delete(int id) => _db.optionsDao.deleteSweetLevel(id);
 }
 
@@ -119,8 +128,13 @@ class ProductOptionsNotifier extends _$ProductOptionsNotifier {
 
   AppDatabase get _db => ref.read(appDatabaseProvider);
 
-  Future<void> toggleSize(int productId, int sizeId, bool enabled) =>
-      _db.optionsDao.setProductSize(productId, sizeId, enabled);
+  Future<void> toggleSize(int productId, int sizeId, bool enabled,
+          {double price = 0}) =>
+      _db.optionsDao.setProductSize(productId, sizeId, enabled, price: price);
+
+  Future<void> updateProductSizePrice(
+          int productId, int sizeId, double price) =>
+      _db.optionsDao.updateProductSizePrice(productId, sizeId, price);
 
   Future<void> toggleIceLevel(int productId, int iceLevelId, bool enabled) =>
       _db.optionsDao.setProductIceLevel(productId, iceLevelId, enabled);

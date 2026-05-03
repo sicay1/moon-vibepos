@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/db/app_database.dart';
+import '../../../core/db/daos/options_dao.dart';
 
 part 'cart_provider.g.dart';
 
@@ -15,7 +16,7 @@ class CartLine {
   int quantity;
   List<CartTopping> toppings;
   String? note;
-  Size? selectedSize;
+  ProductSizeOption? selectedSize;
   String? selectedIceLabel;
   String? selectedSweetLabel;
 
@@ -64,7 +65,7 @@ class CartNotifier extends _$CartNotifier {
 
   void addProductWithOptions(
     Product product, {
-    Size? size,
+    ProductSizeOption? size,
     String? iceLabel,
     String? sweetLabel,
   }) {
@@ -81,7 +82,7 @@ class CartNotifier extends _$CartNotifier {
 
   void setOptions(
     int productId, {
-    Size? size,
+    ProductSizeOption? size,
     String? iceLabel,
     String? sweetLabel,
   }) {

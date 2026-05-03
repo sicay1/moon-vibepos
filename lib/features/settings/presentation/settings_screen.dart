@@ -11,6 +11,7 @@ import '../providers/cleanup_provider.dart';
 import '../providers/backup_provider.dart';
 import '../providers/sync_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import 'options_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -58,6 +59,21 @@ class SettingsScreen extends ConsumerWidget {
                     ],
                   ),
                 ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          // ── Product Options ──────────────────────────────────────────────
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.tune_outlined, color: AppColors.secondary),
+              title: const Text('Product Options',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('Manage sizes, ice levels & sweet levels'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const OptionsScreen()),
               ),
             ),
           ),

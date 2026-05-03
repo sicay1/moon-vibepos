@@ -4563,8 +4563,18 @@ class $ProductSizesTable extends ProductSizes
       'REFERENCES sizes (id)',
     ),
   );
+  static const VerificationMeta _priceMeta = const VerificationMeta('price');
   @override
-  List<GeneratedColumn> get $columns => [productId, sizeId];
+  late final GeneratedColumn<double> price = GeneratedColumn<double>(
+    'price',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [productId, sizeId, price];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4593,6 +4603,12 @@ class $ProductSizesTable extends ProductSizes
     } else if (isInserting) {
       context.missing(_sizeIdMeta);
     }
+    if (data.containsKey('price')) {
+      context.handle(
+        _priceMeta,
+        price.isAcceptableOrUnknown(data['price']!, _priceMeta),
+      );
+    }
     return context;
   }
 
@@ -4610,6 +4626,10 @@ class $ProductSizesTable extends ProductSizes
         DriftSqlType.int,
         data['${effectivePrefix}size_id'],
       )!,
+      price: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}price'],
+      )!,
     );
   }
 
@@ -4622,12 +4642,18 @@ class $ProductSizesTable extends ProductSizes
 class ProductSize extends DataClass implements Insertable<ProductSize> {
   final int productId;
   final int sizeId;
-  const ProductSize({required this.productId, required this.sizeId});
+  final double price;
+  const ProductSize({
+    required this.productId,
+    required this.sizeId,
+    required this.price,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['product_id'] = Variable<int>(productId);
     map['size_id'] = Variable<int>(sizeId);
+    map['price'] = Variable<double>(price);
     return map;
   }
 
@@ -4635,6 +4661,7 @@ class ProductSize extends DataClass implements Insertable<ProductSize> {
     return ProductSizesCompanion(
       productId: Value(productId),
       sizeId: Value(sizeId),
+      price: Value(price),
     );
   }
 
@@ -4646,6 +4673,7 @@ class ProductSize extends DataClass implements Insertable<ProductSize> {
     return ProductSize(
       productId: serializer.fromJson<int>(json['productId']),
       sizeId: serializer.fromJson<int>(json['sizeId']),
+      price: serializer.fromJson<double>(json['price']),
     );
   }
   @override
@@ -4654,17 +4682,21 @@ class ProductSize extends DataClass implements Insertable<ProductSize> {
     return <String, dynamic>{
       'productId': serializer.toJson<int>(productId),
       'sizeId': serializer.toJson<int>(sizeId),
+      'price': serializer.toJson<double>(price),
     };
   }
 
-  ProductSize copyWith({int? productId, int? sizeId}) => ProductSize(
-    productId: productId ?? this.productId,
-    sizeId: sizeId ?? this.sizeId,
-  );
+  ProductSize copyWith({int? productId, int? sizeId, double? price}) =>
+      ProductSize(
+        productId: productId ?? this.productId,
+        sizeId: sizeId ?? this.sizeId,
+        price: price ?? this.price,
+      );
   ProductSize copyWithCompanion(ProductSizesCompanion data) {
     return ProductSize(
       productId: data.productId.present ? data.productId.value : this.productId,
       sizeId: data.sizeId.present ? data.sizeId.value : this.sizeId,
+      price: data.price.present ? data.price.value : this.price,
     );
   }
 
@@ -4672,44 +4704,51 @@ class ProductSize extends DataClass implements Insertable<ProductSize> {
   String toString() {
     return (StringBuffer('ProductSize(')
           ..write('productId: $productId, ')
-          ..write('sizeId: $sizeId')
+          ..write('sizeId: $sizeId, ')
+          ..write('price: $price')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(productId, sizeId);
+  int get hashCode => Object.hash(productId, sizeId, price);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProductSize &&
           other.productId == this.productId &&
-          other.sizeId == this.sizeId);
+          other.sizeId == this.sizeId &&
+          other.price == this.price);
 }
 
 class ProductSizesCompanion extends UpdateCompanion<ProductSize> {
   final Value<int> productId;
   final Value<int> sizeId;
+  final Value<double> price;
   final Value<int> rowid;
   const ProductSizesCompanion({
     this.productId = const Value.absent(),
     this.sizeId = const Value.absent(),
+    this.price = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProductSizesCompanion.insert({
     required int productId,
     required int sizeId,
+    this.price = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : productId = Value(productId),
        sizeId = Value(sizeId);
   static Insertable<ProductSize> custom({
     Expression<int>? productId,
     Expression<int>? sizeId,
+    Expression<double>? price,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (productId != null) 'product_id': productId,
       if (sizeId != null) 'size_id': sizeId,
+      if (price != null) 'price': price,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4717,11 +4756,13 @@ class ProductSizesCompanion extends UpdateCompanion<ProductSize> {
   ProductSizesCompanion copyWith({
     Value<int>? productId,
     Value<int>? sizeId,
+    Value<double>? price,
     Value<int>? rowid,
   }) {
     return ProductSizesCompanion(
       productId: productId ?? this.productId,
       sizeId: sizeId ?? this.sizeId,
+      price: price ?? this.price,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4735,6 +4776,9 @@ class ProductSizesCompanion extends UpdateCompanion<ProductSize> {
     if (sizeId.present) {
       map['size_id'] = Variable<int>(sizeId.value);
     }
+    if (price.present) {
+      map['price'] = Variable<double>(price.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4746,6 +4790,7 @@ class ProductSizesCompanion extends UpdateCompanion<ProductSize> {
     return (StringBuffer('ProductSizesCompanion(')
           ..write('productId: $productId, ')
           ..write('sizeId: $sizeId, ')
+          ..write('price: $price, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9359,12 +9404,14 @@ typedef $$ProductSizesTableCreateCompanionBuilder =
     ProductSizesCompanion Function({
       required int productId,
       required int sizeId,
+      Value<double> price,
       Value<int> rowid,
     });
 typedef $$ProductSizesTableUpdateCompanionBuilder =
     ProductSizesCompanion Function({
       Value<int> productId,
       Value<int> sizeId,
+      Value<double> price,
       Value<int> rowid,
     });
 
@@ -9419,6 +9466,11 @@ class $$ProductSizesTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<double> get price => $composableBuilder(
+    column: $table.price,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$ProductsTableFilterComposer get productId {
     final $$ProductsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -9475,6 +9527,11 @@ class $$ProductSizesTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<double> get price => $composableBuilder(
+    column: $table.price,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ProductsTableOrderingComposer get productId {
     final $$ProductsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -9531,6 +9588,9 @@ class $$ProductSizesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<double> get price =>
+      $composableBuilder(column: $table.price, builder: (column) => column);
+
   $$ProductsTableAnnotationComposer get productId {
     final $$ProductsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -9608,20 +9668,24 @@ class $$ProductSizesTableTableManager
               ({
                 Value<int> productId = const Value.absent(),
                 Value<int> sizeId = const Value.absent(),
+                Value<double> price = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductSizesCompanion(
                 productId: productId,
                 sizeId: sizeId,
+                price: price,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required int productId,
                 required int sizeId,
+                Value<double> price = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductSizesCompanion.insert(
                 productId: productId,
                 sizeId: sizeId,
+                price: price,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

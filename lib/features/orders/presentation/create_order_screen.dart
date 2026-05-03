@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../providers/orders_provider.dart';
 import '../providers/cart_provider.dart';
 import '../../../core/db/app_database.dart';
+import '../../../core/db/daos/options_dao.dart';
 import '../../../core/providers/database_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/shared/widgets/placeholder_avatar.dart';
@@ -144,14 +145,14 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
 
   Future<void> _showOptionSelector(BuildContext context, Product product) async {
     final db = ref.read(appDatabaseProvider);
-    final sizes =
-        await db.optionsDao.watchSizesForProduct(product.id).first;
+    final sizeOptions =
+        await db.optionsDao.watchProductSizeOptions(product.id).first;
     final iceLevels =
         await db.optionsDao.watchIceLevelsForProduct(product.id).first;
     final sweetLevels =
         await db.optionsDao.watchSweetLevelsForProduct(product.id).first;
 
-    if (sizes.isEmpty && iceLevels.isEmpty && sweetLevels.isEmpty) {
+    if (sizeOptions.isEmpty && iceLevels.isEmpty && sweetLevels.isEmpty) {
       ref.read(cartNotifierProvider.notifier).addProduct(product);
       return;
     }
@@ -162,7 +163,7 @@ class _CreateOrderScreenState extends ConsumerState<CreateOrderScreen> {
       isScrollControlled: true,
       builder: (_) => _OptionSelectorSheet(
         product: product,
-        sizes: sizes,
+        sizes: sizeOptions,
         iceLevels: iceLevels,
         sweetLevels: sweetLevels,
         onConfirm: (size, iceLabel, sweetLabel) {
@@ -561,11 +562,11 @@ class _ToppingPickerSheet extends ConsumerWidget {
 
 class _OptionSelectorSheet extends StatefulWidget {
   final Product product;
-  final List<Size> sizes;
+  final List<ProductSizeOption> sizes;
   final List<IceLevel> iceLevels;
   final List<SweetLevel> sweetLevels;
-  final void Function(Size? size, String? iceLabel, String? sweetLabel)
-      onConfirm;
+  final void Function(
+      ProductSizeOption? size, String? iceLabel, String? sweetLabel) onConfirm;
 
   const _OptionSelectorSheet({
     required this.product,
@@ -580,7 +581,7 @@ class _OptionSelectorSheet extends StatefulWidget {
 }
 
 class _OptionSelectorSheetState extends State<_OptionSelectorSheet> {
-  Size? _selectedSize;
+  ProductSizeOption? _selectedSize;
   String? _selectedIceLabel;
   String? _selectedSweetLabel;
 
@@ -628,7 +629,7 @@ class _OptionSelectorSheetState extends State<_OptionSelectorSheet> {
                   if (widget.sizes.isNotEmpty) ...[
                     const Text('Size',
                         style: TextStyle(fontWeight: FontWeight.w600)),
-                    ...widget.sizes.map((s) => RadioListTile<Size>(
+                    ...widget.sizes.map((s) => RadioListTile<ProductSizeOption>(
                           dense: true,
                           title: Text(
                               s.price > 0 ? '${s.label} — ${fmt.format(s.price)}' : s.label),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/db/app_database.dart';
+import '../../../../core/db/daos/options_dao.dart';
 import '../../../../core/shared/widgets/placeholder_avatar.dart';
 import '../../../../core/shared/widgets/delete_confirm_dialog.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -191,19 +192,8 @@ class ProductDetailScreen extends ConsumerWidget {
 
               // ── Options sections ──────────────────────────────────────────
               SliverToBoxAdapter(
-                child: _OptionSection<Size>(
-                  title: 'Size',
-                  allOptionsAsync: ref.watch(sizesStreamProvider),
-                  enabledOptionsAsync:
-                      ref.watch(productSizesStreamProvider(product.id)),
-                  getId: (s) => s.id,
-                  getLabel: (s) =>
-                      s.price > 0 ? '${s.label}  ${s.price.toStringAsFixed(0)}₫' : '${s.label}  — set price',
-                  onToggle: (sizeId, enabled) => ref
-                      .read(productOptionsNotifierProvider.notifier)
-                      .toggleSize(product.id, sizeId, enabled),
-                  onAddOption: () => _showAddSizeDialog(context, ref),
-                  onEditItem: (s) => _showEditSizePriceDialog(context, ref, s),
+                child: _SizeOptionSection(
+                  product: product,
                 ),
               ),
               SliverToBoxAdapter(
@@ -266,86 +256,6 @@ class ProductDetailScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _showEditSizePriceDialog(
-      BuildContext context, WidgetRef ref, Size size) async {
-    final priceCtrl = TextEditingController(
-        text: size.price > 0 ? size.price.toStringAsFixed(0) : '');
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Price for ${size.label}'),
-        content: TextField(
-          controller: priceCtrl,
-          decoration: const InputDecoration(
-            labelText: 'Price (₫)',
-            suffixText: '₫',
-          ),
-          keyboardType: TextInputType.number,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final price = double.tryParse(priceCtrl.text) ?? 0;
-              await ref
-                  .read(sizesNotifierProvider.notifier)
-                  .updatePrice(size.id, price);
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _showAddSizeDialog(BuildContext context, WidgetRef ref) async {
-    final labelCtrl = TextEditingController();
-    final priceCtrl = TextEditingController(text: '0');
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add Size'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: labelCtrl,
-              decoration: const InputDecoration(labelText: 'Label (e.g. Large 1L)'),
-              autofocus: true,
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: priceCtrl,
-              decoration: const InputDecoration(labelText: 'Price (₫)'),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final label = labelCtrl.text.trim();
-              if (label.isEmpty) return;
-              final price = double.tryParse(priceCtrl.text) ?? 0;
-              await ref.read(sizesNotifierProvider.notifier).add(label, price);
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _showAddLabelDialog(
     BuildContext context, {
     required String title,
@@ -371,6 +281,233 @@ class ProductDetailScreen extends ConsumerWidget {
               final label = ctrl.text.trim();
               if (label.isEmpty) return;
               await onConfirm(label);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Size option section (per-product price) ───────────────────────────────────
+
+class _SizeOptionSection extends ConsumerWidget {
+  final Product product;
+  const _SizeOptionSection({required this.product});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final allSizesAsync = ref.watch(sizesStreamProvider);
+    final sizeOptionsAsync =
+        ref.watch(productSizeOptionsStreamProvider(product.id));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 8, 4),
+          child: Row(
+            children: [
+              Text(
+                'Size',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: () => _showAddSizeDialog(context, ref),
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Add'),
+                style: TextButton.styleFrom(
+                    foregroundColor: AppColors.secondary,
+                    visualDensity: VisualDensity.compact),
+              ),
+            ],
+          ),
+        ),
+        allSizesAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(8),
+            child: LinearProgressIndicator(),
+          ),
+          error: (e, _) => Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text('Error: $e'),
+          ),
+          data: (allSizes) {
+            if (allSizes.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  'No sizes yet. Tap Add to create one.',
+                  style: TextStyle(color: AppColors.onSurfaceVariant),
+                ),
+              );
+            }
+            // Build a map of sizeId → per-product option for enabled sizes
+            final enabledMap = {
+              for (final opt in sizeOptionsAsync.valueOrNull ?? <ProductSizeOption>[])
+                opt.sizeId: opt
+            };
+            return Column(
+              children: allSizes.map((size) {
+                final enabledOpt = enabledMap[size.id];
+                final isEnabled = enabledOpt != null;
+                return CheckboxListTile(
+                  dense: true,
+                  title: Text(isEnabled && enabledOpt != null && enabledOpt.price > 0
+                      ? '${size.label}  ${enabledOpt.price.toStringAsFixed(0)}₫'
+                      : size.label),
+                  subtitle: !isEnabled
+                      ? const Text('Tap to enable & set price',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.onSurfaceVariant))
+                      : null,
+                  secondary: isEnabled
+                      ? IconButton(
+                          icon: const Icon(Icons.edit_outlined, size: 18),
+                          color: AppColors.onSurfaceVariant,
+                          onPressed: () => _showEditProductSizePriceDialog(
+                              context, ref, size, enabledOpt?.price ?? 0),
+                        )
+                      : null,
+                  value: isEnabled,
+                  onChanged: (v) async {
+                    if (v == true) {
+                      await _showSetPriceAndEnable(context, ref, size);
+                    } else {
+                      await ref
+                          .read(productOptionsNotifierProvider.notifier)
+                          .toggleSize(product.id, size.id, false);
+                    }
+                  },
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  /// Ask for a price and then enable this size for the product.
+  Future<void> _showSetPriceAndEnable(
+      BuildContext context, WidgetRef ref, Size size) async {
+    final priceCtrl = TextEditingController(
+        text: size.price > 0 ? size.price.toStringAsFixed(0) : '');
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Price for ${size.label}'),
+        content: TextField(
+          controller: priceCtrl,
+          decoration: const InputDecoration(
+            labelText: 'Price (₫)',
+            suffixText: '₫',
+            helperText: 'This is the price for this product at this size',
+          ),
+          keyboardType: TextInputType.number,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Enable'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      final price = double.tryParse(priceCtrl.text) ?? 0;
+      await ref
+          .read(productOptionsNotifierProvider.notifier)
+          .toggleSize(product.id, size.id, true, price: price);
+    }
+  }
+
+  /// Edit the price of an already-enabled size for this product only.
+  Future<void> _showEditProductSizePriceDialog(
+      BuildContext context, WidgetRef ref, Size size, double currentPrice) async {
+    final priceCtrl = TextEditingController(
+        text: currentPrice > 0 ? currentPrice.toStringAsFixed(0) : '');
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Edit price for ${size.label}'),
+        content: TextField(
+          controller: priceCtrl,
+          decoration: const InputDecoration(
+            labelText: 'Price (₫)',
+            suffixText: '₫',
+          ),
+          keyboardType: TextInputType.number,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () async {
+              final price = double.tryParse(priceCtrl.text) ?? 0;
+              await ref
+                  .read(productOptionsNotifierProvider.notifier)
+                  .updateProductSizePrice(product.id, size.id, price);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showAddSizeDialog(BuildContext context, WidgetRef ref) async {
+    final labelCtrl = TextEditingController();
+    final priceCtrl = TextEditingController(text: '0');
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Global Size'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: labelCtrl,
+              decoration: const InputDecoration(
+                  labelText: 'Label (e.g. Large 1L)',
+                  helperText: 'This size will be available for all products'),
+              autofocus: true,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: priceCtrl,
+              decoration:
+                  const InputDecoration(labelText: 'Default price (₫)'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () async {
+              final label = labelCtrl.text.trim();
+              if (label.isEmpty) return;
+              final price = double.tryParse(priceCtrl.text) ?? 0;
+              await ref.read(sizesNotifierProvider.notifier).add(label, price);
               if (ctx.mounted) Navigator.pop(ctx);
             },
             child: const Text('Add'),
