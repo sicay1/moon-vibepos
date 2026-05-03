@@ -26,3 +26,11 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Build
+
+Standard (Fat APK): `flutter build apk`
+- Generates a single, large APK containing binaries for all target architectures (ARM 32-bit, ARM 64-bit, and x86-64).
+
+Split APKs: `flutter build apk --split-per-abi`
+- Generates separate, smaller APKs for each architecture. This is useful for reducing the download size for users if you are not using App Bundles.

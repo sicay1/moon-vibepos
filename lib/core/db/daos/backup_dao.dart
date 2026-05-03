@@ -77,6 +77,27 @@ class BackupDao extends DatabaseAccessor<AppDatabase> with _$BackupDaoMixin {
   /// Call [CleanupDao.factoryReset] before calling this to start clean.
   Future<void> importAll(Map<String, dynamic> data) =>
       transaction(() async {
+        // ── Schema migration: v1 old → v1 new ─────────────────────────────
+        // Old format stored price on the sizes table (global per-size price).
+        // New format stores price on productSizes (per-product-per-size price).
+        // If productSizes entries are missing the 'price' field, migrate by
+        // copying the global size price into each productSizes entry.
+        final rawProductSizes = _list(data, 'productSizes');
+        if (rawProductSizes.isNotEmpty &&
+            !rawProductSizes.first.containsKey('price')) {
+          final sizeIdToPrice = {
+            for (final s in _list(data, 'sizes'))
+              s['id'] as int: (s['price'] as num?)?.toDouble() ?? 0.0,
+          };
+          data = Map<String, dynamic>.from(data);
+          data['productSizes'] = rawProductSizes
+              .map((ps) => {
+                    ...ps,
+                    'price': sizeIdToPrice[ps['sizeId'] as int] ?? 0.0,
+                  })
+              .toList();
+        }
+        // ──────────────────────────────────────────────────────────────────
         for (final m in _list(data, 'categories')) {
           await into(categories)
               .insertOnConflictUpdate(Category.fromJson(m));
