@@ -28,6 +28,11 @@ class ProductsDao extends DatabaseAccessor<AppDatabase>
         .get();
   }
 
+  Stream<Product?> watchById(int id) {
+    return (select(products)..where((t) => t.id.equals(id)))
+        .watchSingleOrNull();
+  }
+
   Future<Product?> getById(int id) {
     return (select(products)..where((t) => t.id.equals(id)))
         .getSingleOrNull();

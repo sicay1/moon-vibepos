@@ -14,6 +14,12 @@ Stream<List<Product>> productsStream(Ref ref) {
 }
 
 @riverpod
+Stream<Product?> productStream(Ref ref, int id) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.productsDao.watchById(id);
+}
+
+@riverpod
 class ProductsNotifier extends _$ProductsNotifier {
   @override
   void build() {}

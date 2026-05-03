@@ -9,7 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../sub_products/providers/sub_products_provider.dart';
 import '../../sub_products/presentation/sub_product_form_screen.dart';
 import '../providers/options_provider.dart';
-// import '../providers/products_provider.dart';
+import '../providers/products_provider.dart';
 import 'product_form_screen.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
@@ -20,18 +20,20 @@ class ProductDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final liveProductAsync = ref.watch(productStreamProvider(product.id));
+    final liveProduct = liveProductAsync.valueOrNull ?? product;
     final subProductsAsync = ref.watch(subProductsStreamProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(product.name),
+        title: Text(liveProduct.name),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (_) => ProductFormScreen(product: product)),
+                  builder: (_) => ProductFormScreen(product: liveProduct)),
             ),
           ),
         ],
@@ -41,7 +43,7 @@ class ProductDetailScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (allSubs) {
           final toppings = allSubs
-              .where((s) => s.productId == product.id)
+              .where((s) => s.productId == liveProduct.id)
               .toList();
 
           return CustomScrollView(
@@ -56,8 +58,8 @@ class ProductDetailScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         PlaceholderAvatar(
-                          imagePath: product.avatarPath,
-                          initials: product.name,
+                          imagePath: liveProduct.avatarPath,
+                          initials: liveProduct.name,
                           radius: 36,
                           backgroundColor: AppColors.pink,
                         ),
@@ -67,7 +69,7 @@ class ProductDetailScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                product.name,
+                                liveProduct.name,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
@@ -75,18 +77,18 @@ class ProductDetailScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${product.price.toStringAsFixed(0)}₫',
+                                '${liveProduct.price.toStringAsFixed(0)}₫',
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16,
                                 ),
                               ),
-                              if (product.description != null &&
-                                  product.description!.isNotEmpty) ...[
+                              if (liveProduct.description != null &&
+                                  liveProduct.description!.isNotEmpty) ...[
                                 const SizedBox(height: 6),
                                 Text(
-                                  product.description!,
+                                  liveProduct.description!,
                                   style: const TextStyle(
                                       color: AppColors.onSurfaceVariant),
                                 ),
