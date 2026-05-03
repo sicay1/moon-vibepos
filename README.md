@@ -1,6 +1,17 @@
 # moon_pos_vibe
 
-A new Flutter project.
+Flutter project for Manage a MilkTea Shop.
+
+## Screenshot
+
+![Dashboard](/screenshots/dashboard.png)
+![Settings](/screenshots/settings.png)
+![Categories](/screenshots/categories.png)
+![Product List](/screenshots/product_list.png)
+![Product Detail](/screenshots/product_details.png)
+![Toppings](/screenshots/topping_list.png)
+![Order List](/screenshots/order_list.png)
+![Order Line](/screenshots/order_line.png)
 
 ## Getting Started
 
